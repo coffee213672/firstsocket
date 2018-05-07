@@ -1,0 +1,193 @@
+<html>
+
+<head>
+    <title>Socket.IO chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font: 13px Helvetica, Arial;
+        }
+
+        form {
+            background: #000;
+            padding: 3px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        form input {
+            border: 0;
+            padding: 10px;
+            width: 90%;
+            margin-right: .5%;
+        }
+
+        form button {
+            width: 4%;
+            background: rgb(130, 224, 255);
+            border: none;
+            padding: 10px;
+        }
+
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #messages li {
+            padding: 5px 10px;
+        }
+
+        #messages li:nth-child(odd) {
+            background: #eee;
+        }
+
+        #list {
+            padding: 5px 10px;
+            text-align: right;
+        }
+
+        #DIV1 {
+            width: 50%;
+            overflow: scroll;
+            height: 950px;
+            line-height: 50px;
+            padding: 20px;
+            border: 2px blue solid;
+            margin-right: 10px;
+            float: left;
+        }
+
+        #DIV2 {
+            width: 49%;
+            overflow: scroll;
+            height: 950px;
+            line-height: 50px;
+            padding: 20px;
+            border: 2px green solid;
+            float: left;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="DIV1">
+        聊天室
+        <ul id="messages"></ul>
+        <form action="">
+            <input id="m" autocomplete="off" />
+            <button>Send</button>
+            <button id="rclear">Clear</button>
+        </form>
+    </div>
+    <div id="DIV2">
+        上線名單
+        <ul id="list">
+        </ul>
+    </div>
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+<script>
+    var socket = io();
+    $(function () {
+        $('form').submit(function () {
+            if ($('#m').val() !== '') {
+                socket.emit('chat message', $('#m').val());
+                $('#m').val('');
+                return false;
+            } else {
+                $('#m').val('');
+                return false;
+            }
+        })
+        socket.on('connect', () => {
+            var obj = new Object;
+            obj.name = prompt('輸入暱稱');
+            socket.emit('login', obj);
+
+        })
+        socket.on('chat message', function (msg) {
+            $('#messages').append($('<li>').text(msg));
+            scrollToBottom();
+        })
+
+        socket.on('userlist', (userlist) => {
+            if (typeof userlist === 'object') {
+                $('#list').html('');
+                for (var i = 0; i < userlist.length; i++) {
+                    if (userlist[i] !== null) {
+                        var lll = '<li id = ' + i + '><span>' + userlist[i] +
+                            '</span>&nbsp;<button onclick = "pchat(' + i + ')">私訊</button>&nbsp;<button onclick = "proom(' + i + ')">私房</button></li>';
+                        $('#list').append(lll);
+                    }
+                }
+            }
+        })
+
+        socket.on('private url',(purl)=>{
+            console.log(purl);
+            //$('#messages').append('<li><a href="'+purl+'">點擊前往私人房間</a></li>');
+            window.open(purl);
+        })
+
+
+        socket.on('disconnect', () => {
+            alert('遭到踢除');
+            socket.disconnect();
+        })
+
+
+        $("#list").on('click', 'span', function () {
+            var k = $(this).text();
+            var z = $(this).attr('id');
+            $("#" + z).remove();
+            var obj = new Object;
+            obj = k;
+            var ks = 'kick';
+            socket.emit('kick', obj);
+        })
+        $("#rclear").click(function () {
+            $("#messages").html('');
+        })
+
+    });
+
+    function pchat(id) {
+        var a = $("#" + id).text();
+        var b = a.substring(0, a.length - 6);
+        $('#m').val('/w ' + b + ' ').focus();
+        console.log(b);
+        
+    }
+
+    function proom(id){
+        var a = $("#" + id).text();
+        var b = a.substring(0, a.length - 6);
+        var c = RandomSn(10);
+        socket.emit('private room',b,c);
+        //window.open("http://localhost:3000/"+c);
+    }
+
+    
+    function RandomSn(len) {
+        var keylist = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUV123456789"
+        temp = ''
+        for (i = 0; i < len; i++)
+            temp += keylist.charAt(Math.floor(Math.random() * keylist.length))
+        return temp
+        
+    }
+    function scrollToBottom () {
+        $('#DIV1').scrollTop($('#DIV1')[0].scrollHeight);
+    };
+</script>
+
+</html>
