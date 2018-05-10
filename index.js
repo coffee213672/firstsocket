@@ -141,7 +141,7 @@ io.on('connection', function (socket) {
     var bpurl = 'http://localhost:3000/'+room_name+'?'+iname;
     io.sockets.sockets[ttt].emit('private url',purl);
     io.sockets.sockets[qqq].emit('private url',bpurl);
-
+    //測試喔= =
   })
 
 
