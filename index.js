@@ -119,7 +119,6 @@ io.on('connection', function (socket) {
     }
   });
 
-
   socket.on('private room', (iname, room_name) => {
 
     if (typeof roomUser[room_name] === 'undefined') {
@@ -142,8 +141,7 @@ io.on('connection', function (socket) {
     io.sockets.sockets[ttt].emit('private url',purl);
     io.sockets.sockets[qqq].emit('private url',bpurl);
 
-    console.log(JSON.stringify('1,' + JSON.stringify(roomUser[room_name])));
-    console.log(JSON.stringify('2,' + JSON.stringify(roomUser['index'])));
+
   })
 
 
