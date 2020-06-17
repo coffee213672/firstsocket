@@ -25,6 +25,7 @@ func main() {
 		log.Fatal(err)
 	}
 	server.OnConnect("/", func(s socketio.Conn) error {
+		s.Join("bcast")
 		return nil
 	})
 
@@ -49,14 +50,16 @@ func main() {
 				log.Println(err)
 				return
 			}
-			s.Emit("err", string(jsonData))
+			s.Emit("repeat", string(jsonData))
 		}
 
 		return
 	})
 
 	server.OnEvent("", "chat message", func(s socketio.Conn, msg string) {
-		s.Emit("chat message", msg)
+		s.SetContext(msg)
+		// s.Emit("chat message", msg)
+		server.BroadcastToRoom("", "bcast", "chat message", msg)
 		return
 	})
 
@@ -73,7 +76,7 @@ func main() {
 
 	http.Handle("/socket.io/", server)
 	http.Handle("/", http.FileServer(http.Dir("./static")))
-	log.Println("Serving at localhost:8000...")
+	log.Println("Serving at localhost:8000")
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
 

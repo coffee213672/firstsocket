@@ -138,10 +138,12 @@
             window.open(purl);
         })
 
-        socket.on('err', (errmsg) => {
+        socket.on('repeat', (errmsg) => {
             let msg = JSON.parse(errmsg)
             alert(msg.errorMeg)
-            socket.disconnect();
+            let name = prompt('輸入暱稱');
+            console.log(name)
+            socket.emit('login', `{"name":"${name}"}`);
         })
 
         socket.on('disconnect', () => {
