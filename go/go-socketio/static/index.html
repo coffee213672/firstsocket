@@ -93,7 +93,7 @@
         </ul>
     </div>
 </body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+<script src="./socket.io.js"></script>
 <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 <script>
     var socket = io();
@@ -119,15 +119,15 @@
             scrollToBottom();
         })
 
-        socket.on('userlist', (userlist) => {
-            if (typeof userlist === 'object') {
-                $('#list').html('');
-                for (var i = 0; i < userlist.length; i++) {
-                    if (userlist[i] !== null) {
-                        var lll = '<li id = ' + i + '><span>' + userlist[i] +
-                            '</span>&nbsp;<button onclick = "pchat(' + i + ')">私訊</button>&nbsp;<button onclick = "proom(' + i + ')">私房</button></li>';
-                        $('#list').append(lll);
-                    }
+        socket.on('userlist', (userlistobj) => {
+            $('#list').html('');
+            let userlist = Object.values(userlistobj)
+            for (var i = 0; i < userlist.length; i++) {
+                if (userlist[i] !== null) {
+                    // var lll = '<li id = ' + i + '><span>' + userlist[i] +
+                    //     '</span>&nbsp;<button onclick = "pchat(' + i + ')">私訊</button>&nbsp;<button onclick = "proom(' + i + ')">私房</button></li>'
+                    let lll = '<li id = ' + i + '><span>' + userlist[i] + '</li>'
+                    $('#list').append(lll);
                 }
             }
         })
