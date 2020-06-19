@@ -1,9 +1,16 @@
 package main
 
 import (
+	"go-chat/cache"
+	"go-chat/config"
 	"go-chat/endpoint"
 	"go-chat/router"
 )
+
+func init() {
+	config.InitConfig()
+	cache.InitCache()
+}
 
 func main() {
 	go endpoint.RoomSet.Run()

@@ -95,6 +95,7 @@
 </body>
 <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 <script>
+    const [CHAT, NAMEREPEAT, ERROR, SOMEONEJOIN] = [1, 2, 3, 4] 
     $(function () {
         let conn;
         if (window["WebSocket"]) {
@@ -113,9 +114,32 @@
                 scrollToBottom();
             };
             conn.onmessage = function (evt) {
-                console.log(evt)
-                let messages = evt.data.split('\n');
-                $('#messages').append($('<li>').text(messages));
+                let messages = JSON.parse(evt.data)
+                switch (messages.msgType) {
+                    case CHAT:
+                        $('#messages').append($('<li>').text(messages.msg));
+                    break
+                    case NAMEREPEAT:
+                        alert(messages.msg)
+                        let name = prompt('輸入暱稱');
+                        conn.send(`{"msgType":0,"msg":"${name}"}`);
+                    break
+                    case SOMEONEJOIN:
+                        $('#messages').append($('<li>').text(messages.msg));
+                        if (messages.userlist != null) {
+                            let userArray = Object.keys(messages.userlist)
+                            for (let name of userArray) {
+                                if (typeof $(`#${name}`)[0] == 'undefined') {
+                                    let newli = '<li id = ' + name + '><span>' + name + '</span></li>'
+                                    $('#list').append(newli)
+                                } else continue
+                            }
+                        }
+                    break
+                    default:
+                        alert(messages.msg)
+                        $('#messages').append($('<li>').text(messages.msg));
+                }
                 scrollToBottom();
             };
         } else {
